@@ -1,0 +1,99 @@
+```{r}
+library(tidyverse)
+```
+
+1. Player Performance Analysis
+```{r}
+all_seasons <- read.csv("all_seasons.csv")
+all_seasons <- all_seasons %>% 
+  group_by(season) %>% mutate(
+    pts_rank = min_rank(desc(pts)),
+    reb_rank = min_rank(desc(reb)),
+    ast_rank = min_rank(desc(ast))
+  ) %>%
+  ungroup()
+  
+# Sort the final data frame
+pts <- all_seasons %>% arrange((season), pts_rank)
+reb <- all_seasons %>% arrange((season), reb_rank)
+ast <- all_seasons %>% arrange((season), ast_rank)
+
+ggplot(all_seasons) + geom_point(aes(x = ts_pct, y = usg_pct))
+cor(all_seasons$ts_pct, all_seasons$usg_pct)
+
+all_seasons <- all_seasons %>%
+  # Remove the first unnamed column if it exists
+  select(-1) %>% 
+  
+  # Group by each player
+  group_by(player_name) %>%
+  
+  # IMPORTANT: Sort by season, so the "lag" gets the previous year
+  arrange(season) %>%
+  
+  # Create new columns for the jump
+  mutate(
+    # lag(pts) gets the 'pts' value from the previous row (season)
+    pts_jump = pts - lag(pts), 
+    reb_jump = reb - lag(reb),
+    ast_jump = ast - lag(ast)
+  ) %>%
+  
+  # Remove the grouping
+  ungroup() 
+
+
+  
+# Filter out NA rows (these are the rookie seasons), Sort by the biggest jump
+pts_jump <- all_seasons %>% filter(!is.na(pts_jump)) %>% arrange(desc(pts_jump))
+reb_jump <- all_seasons %>% filter(!is.na(reb_jump)) %>% arrange(desc(reb_jump))
+ast_jump <- all_seasons %>% filter(!is.na(ast_jump)) %>% arrange(desc(ast_jump))
+
+```
+
+2.Era & Team Comparisons
+```{r}
+#Create the 'decade' column
+all_seasons <- all_seasons %>%
+  mutate(
+    decade = case_when(
+      # The 'season' column is a string, so we can check what it starts with
+      str_starts(season, "199") ~ "1990s",
+      str_starts(season, "200") ~ "2000s",
+      str_starts(season, "201") ~ "2010s",
+      str_starts(season, "202") ~ "2020s",
+      TRUE ~ "Other" # A fallback for any other cases
+    )
+  )
+
+player_size <- all_seasons %>% group_by(decade) %>% summarise(average_height = mean(player_height), average_weight = mean(player_weight))
+
+#Identify top-performing players
+#New metrics for top players, All-Around Rank (AAR)
+AAR <- all_seasons %>% 
+  select(player_name, season, team_abbreviation, pts_rank, reb_rank, ast_rank, decade) %>%
+  mutate(AAR_score = (pts_rank + reb_rank + ast_rank)/3) 
+#Top Player if their AAR falls within the Top 25 lowest AAR rank for that season.
+top_player <- AAR %>% group_by(season) %>% 
+  arrange(AAR_score, .by_group = TRUE) %>%
+  slice_head(n = 25)
+
+#Teams consistently produce top-performing players
+top_player %>% group_by(team_abbreviation) %>% summarise(team = team_abbreviation, count = n()) %>% unique() %>% arrange(desc(count))
+```
+
+3. MVP & Dream Team
+```{r}
+all_seasons <- all_seasons %>% mutate(weighted_index = 0.4*pts + 0.3*(reb + ast) + 0.3*ts_pct)
+mvp <- all_seasons %>% 
+  group_by(season) %>% 
+  arrange(desc(weighted_index), .by_group = TRUE) %>%
+  slice_head(n = 1) %>% select(player_name, team_abbreviation, season)
+
+mvp %>% group_by(player_name) %>% summarise(count = n())
+```
+
+
+```{r}
+```
+
