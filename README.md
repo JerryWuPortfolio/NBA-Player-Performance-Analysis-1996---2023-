@@ -1,6 +1,6 @@
-**My Findings:**
+# **My Findings:**
 
-**1. Player Performance Trends**
+# **1. Player Performance Trends**
 
 **Which players lead their seasons in scoring, rebounding, and playmaking - and how efficient are they?**
 
