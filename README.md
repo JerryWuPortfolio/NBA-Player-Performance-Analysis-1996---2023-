@@ -4,11 +4,11 @@
 
 ### **Which players lead their seasons in scoring, rebounding, and playmaking - and how efficient are they?**
 
-Efficiency:
+**Efficiency**:
 
 -   Correlation coefficient between true shooting and usage is 0.12, suggesting weak positive correlation. This implies that volume scorers do not necessarily sacrifice efficiency.
 
-Most Improved Players:
+**Most Improved Players**:
 
 -   **Scoring**: MarShon Brooks (2017, +15.6 points_per_game), Louis King (2022, +15.5 points_pergame), JaKarr Sampson (2018, +15.3 points_per_game)
 -   **Rebounding**: Julius Randle (2015, +10.2 rebounds), Danny Fortson (2000, +9.6 rebounds), Jaylen Hoard (2021, +8.6 rebounds)
